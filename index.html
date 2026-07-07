@@ -117,7 +117,7 @@
             <label id="cropLabel">選擇作物：</label>
             <select id="cropSelect" onchange="fetchCropData()">
                 <option value="">-- 請選擇 --</option>
-                <option value="tomato">番茄</option>
+                <option value="custardapple">番荔枝</option>
                 <option value="mango">芒果</option>
             </select>
         </div>
@@ -151,13 +151,13 @@
 <script>
     // 模擬從政府 API (過濾後) 撈回來的結構，並包含我們店內自訂的商品對應
     const mockApiResponse = {
-        tomato: [
+        custardapple: [
             {
-                name: "番茄晚疫病",
+                name: "炭疽病",
                 symptom: "葉片出現水浸狀斑點，後擴大變褐，潮濕時背面有白黴。",
                 officialMedicine: "亞托敏 (Azoxystrobin)、氟派瑞 (Fluopyram)",
-                storeProduct: "【店長推薦】穩疫能 500ml (含亞托敏成分)", // 功能 1：店裡用藥
-                imgUrl: "https://placehold.co/400x300/e74c3c/ffffff?text=Tomato+Blight"
+                storeProduct: "【店長推薦】多保精 500ml", // 功能 1：店裡用藥
+                imgUrl: "https://placehold.co/400x300/e74c3c/ffffff?text=custardapple+Blight"
             },
             {
                 name: "銀葉粉虱",
