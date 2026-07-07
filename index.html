@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植物病蟲害用藥建議系統</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .select-group {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        label {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        select {
+            padding: 8px 16px;
+            font-size: 1rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            outline: none;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            display: none; /* 預設隱藏，選擇作物後才顯示 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #2ecc71;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .pest-img {
+            max-width: 120px;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+        }
+        .no-data {
+            text-align: center;
+            color: #7f8c8d;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌱 植物病蟲害用藥建議查詢</h1>
+    
+    <div class="select-group">
+        <label for="cropSelect">請選擇作物：</label>
+        <select id="cropSelect" onchange="updateTable()">
+            <option value="">-- 請選擇 --</option>
+            <option value="tomato">番茄</option>
+            <option value="rice">水稻</option>
+            <option value="cabbage">甘藍 (高麗菜)</option>
+        </select>
+    </div>
+
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th style="width: 20%;">常見病蟲害</th>
+                <th style="width: 25%;">危害症狀簡述</th>
+                <th style="width: 30%;">推薦使用藥劑 / 防治方法</th>
+                <th style="width: 25%;">危害照片</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <div id="placeholderText" class="no-data">請先選擇上方作物以查看用藥建議。</div>
+</div>
+
+<script>
+    // 模擬後端或資料庫的病蟲害資料
+    const diseaseData = {
+        tomato: [
+            {
+                name: "番茄晚疫病",
+                symptom: "葉片出現水浸狀斑點，後擴大變褐，潮濕時背面有白黴。",
+                medicine: "亞托敏 (Azoxystrobin)、氟派瑞 (Fluopyram)",
+                imgUrl: "https://placehold.co/120x90/e74c3c/ffffff?text=Tomato+Blight" // 替換為真實圖片網址
+            },
+            {
+                name: "銀葉粉虱",
+                symptom: "吸食汁液，分泌蜜露引發煤煙病，並傳播病毒病。",
+                medicine: "益達胺 (Imidacloprid)、達特南 (Dinotefuran)",
+                imgUrl: "https://placehold.co/120x90/f39c12/ffffff?text=Whitefly"
+            }
+        ],
+        rice: [
+            {
+                name: "稻熱病",
+                symptom: "葉片出現紡錘形褐色病斑，嚴重時全株枯死（簡稱抽穗黃枯）。",
+                medicine: "三賽唑 (Tricyclazole)、嘉賜黴素 (Kasugamycin)",
+                imgUrl: "https://placehold.co/120x90/3498db/ffffff?text=Rice+Blast"
+            },
+            {
+                name: "褐飛蝨",
+                symptom: "群集於稻株基部吸食汁液，導致稻株枯萎倒伏（蝨燒）。",
+                medicine: "派滅淨 (Pymetrozine)、氟尼胺 (Flonicamid)",
+                imgUrl: "https://placehold.co/120x90/9b59b6/ffffff?text=Brown+Planthopper"
+            }
+        ],
+        cabbage: [
+            {
+                name: "紋白蝶 (青蟲)",
+                symptom: "幼蟲啃食葉片，嚴重時僅剩主脈。",
+                medicine: "蘇力菌 (Bacillus thuringiensis)、因滅汀 (Emamectin benzoate)",
+                imgUrl: "https://placehold.co/120x90/2ecc71/ffffff?text=Cabbage+Worm"
+            }
+        ]
+    };
+
+    function updateTable() {
+        const select = document.getElementById("cropSelect");
+        const selectedCrop = select.value;
+        const table = document.getElementById("resultTable");
+        const tbody = document.getElementById("tableBody");
+        const placeholder = document.getElementById("placeholderText");
+
+        // 清空舊的表格內容
+        tbody.innerHTML = "";
+
+        if (selectedCrop && diseaseData[selectedCrop]) {
+            // 取得該作物的資料
+            const data = diseaseData[selectedCrop];
+
+            // 跑迴圈把資料塞進表格
+            data.forEach(item => {
+                const row = document.createElement("tr");
+                
+                row.innerHTML = `
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.symptom}</td>
+                    <td>${item.medicine}</td>
+                    <td><img src="${item.imgUrl}" alt="${item.name}" class="pest-img"></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+
+            // 顯示表格，隱藏提示字
+            table.style.display = "table";
+            placeholder.style.display = "none";
+        } else {
+            // 如果沒選作物，隱藏表格，顯示提示字
+            table.style.display = "none";
+            placeholder.style.display = "block";
+        }
+    }
+</script>
+
+</body>
+</html>
